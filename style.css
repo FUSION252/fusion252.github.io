@@ -1,53 +1,163 @@
+/* ===========================
+   IARA – Estilos do widget
+   =========================== */
+
 :root{
-  --bg:#0b0d12;
-  --card:#131720;
-  --muted:#9aa4b2;
-  --text:#e6ebf3;
-  --accent:#4f7cff;
-  --accent-2:#22c55e;
-  --danger:#ef4444;
-  --maxw:1100px;
-  --radius:16px;
+  --iara-bg: #ffffff;
+  --iara-border: #e5e7eb;
+  --iara-primary: #2563eb;
+  --iara-primary-weak:#eff6ff;
+  --iara-text: #111827;
+  --iara-muted:#6b7280;
+  --iara-shadow: 0 10px 30px rgba(0,0,0,.12);
+  --iara-radius: 14px;
+  --iara-z: 2147483646; /* abaixo apenas do máximo */
 }
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial}
-a{color:var(--accent);text-decoration:none}
-a:hover{text-decoration:underline}
-.container{max-width:var(--maxw);margin:0 auto;padding:20px}
-.nav{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 0}
-.brand{display:flex;gap:10px;align-items:center;font-weight:700;font-size:20px}
-.brand-badge{width:10px;height:10px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent-2))}
-.navlinks{display:flex;gap:14px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:white;border-radius:10px;padding:10px 14px;border:0;cursor:pointer}
-.btn.secondary{background:#1f2937}
-.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:center}
-.hero h1{font-size:40px;line-height:1.1;margin:0 0 12px}
-.hero p{color:var(--muted);margin:0 0 16px}
-.card{background:var(--card);border:1px solid #1f2430;border-radius:var(--radius);padding:18px}
-.grid{display:grid;gap:18px}
-.grid.cols-3{grid-template-columns:repeat(3,1fr)}
-.grid.cols-2{grid-template-columns:repeat(2,1fr)}
-@media (max-width: 980px){
-  .hero{grid-template-columns:1fr}
-  .grid.cols-3{grid-template-columns:1fr}
-  .grid.cols-2{grid-template-columns:1fr}
+
+/* Bolinha flutuante */
+#iara-fab.iara-fab{
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 64px;
+  height: 64px;
+  background: var(--iara-primary);
+  color: #fff;
+  border-radius: 999px;
+  box-shadow: var(--iara-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", "Apple Color Emoji","Segoe UI Emoji";
+  font-weight: 700;
+  letter-spacing: .5px;
+  cursor: grab;
+  user-select: none;
+  z-index: var(--iara-z);
 }
-.section-title{font-size:22px;margin:8px 0 12px}
-.footer{margin-top:40px;padding:20px 0;color:var(--muted);font-size:14px;border-top:1px solid #1f2430}
-.small{font-size:13px;color:var(--muted)}
-/* Ad slots */
-.ad-slot{background:#0f1420;border:1px dashed #2a3547;border-radius:12px;padding:8px;text-align:center;color:#9fb0c9;font-size:13px}
-.ad-slot .label{font-weight:700;color:#b8c4d6;margin-bottom:6px}
-.ad-responsive{min-height:90px}
-.ad-inarticle{min-height:280px}
-/* Floating Chat Button */
-#chat-launcher{position:fixed;right:20px;bottom:20px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border:0;border-radius:999px;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.4);cursor:pointer;font-weight:600;z-index:9999}
-#chat-panel{position:fixed;right:20px;bottom:80px;width:340px;max-height:70vh;background:var(--card);border:1px solid #1f2430;border-radius:16px;display:none;flex-direction:column;overflow:hidden;z-index:9999}
-#chat-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #1f2430}
-#chat-title{font-weight:700}
-#chat-body{padding:12px;overflow:auto;display:flex;flex-direction:column;gap:10px}
-.msg{padding:10px 12px;border-radius:12px;max-width:85%}
-.user{align-self:flex-end;background:#1e293b}
-.bot{align-self:flex-start;background:#0f172a}
-#chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid #1f2430}
-#chat-input input{flex:1;padding:10px;border-radius:10px;border:1px solid #263043;background:#0c111b;color:var(--text)}
+#iara-fab.iara-fab:active{ cursor: grabbing; }
+#iara-fab.iara-fab span{ pointer-events: none; }
+
+/* Janela de chat */
+#iara-chat.iara-chat{
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  height: 520px;
+  background: var(--iara-bg);
+  border: 1px solid var(--iara-border);
+  border-radius: var(--iara-radius);
+  box-shadow: var(--iara-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: calc(var(--iara-z) + 1);
+}
+
+/* Arraste livre (ao alterar posição via JS) */
+#iara-chat.iara-chat{ cursor: default; }
+#iara-chat.hidden{ display: none; }
+
+/* Cabeçalho */
+.iara-chat-header{
+  height: 48px;
+  background: var(--iara-primary-weak);
+  border-bottom: 1px solid var(--iara-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  cursor: grab;
+}
+.iara-chat-header:active{ cursor: grabbing; }
+.iara-title{
+  font-weight: 700;
+  color: var(--iara-text);
+}
+.iara-actions button{
+  border: 0;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+/* Corpo */
+.iara-chat-body{
+  flex: 1;
+  padding: 12px;
+  background: #fafafa;
+  overflow-y: auto;
+}
+
+/* Mensagens */
+.iara-msg{
+  margin-bottom: 12px;
+  display: flex;
+}
+.iara-msg.user{ justify-content: flex-end; }
+.iara-msg.assistant{ justify-content: flex-start; }
+.iara-msg.system{ justify-content: center; }
+
+.iara-bubble{
+  max-width: 80%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  line-height: 1.4;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue";
+  font-size: 14px;
+  color: var(--iara-text);
+  background: #fff;
+  border: 1px solid var(--iara-border);
+  box-shadow: 0 4px 14px rgba(0,0,0,.05);
+}
+.iara-msg.user .iara-bubble{
+  background: var(--iara-primary);
+  color: #fff;
+  border-color: var(--iara-primary);
+}
+.iara-msg.system .iara-bubble{
+  background: #fffbe6;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+/* Input */
+.iara-chat-input-wrap{
+  border-top: 1px solid var(--iara-border);
+  background: #fff;
+  padding: 8px;
+  display: flex;
+  gap: 8px;
+}
+#iara-chat-input{
+  flex: 1;
+  height: 40px;
+  border: 1px solid var(--iara-border);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+  outline: none;
+}
+#iara-chat-send{
+  min-width: 44px;
+  height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--iara-primary);
+  color: #fff;
+  cursor: pointer;
+}
+#iara-chat-mic{
+  min-width: 44px;
+  height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: #eef2ff;
+  cursor: pointer;
+}
+@media (max-width: 420px){
+  #iara-chat.iara-chat{ width: calc(100vw - 16px); height: 80vh; right: 8px; bottom: 8px; }
+}
