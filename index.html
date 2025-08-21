@@ -162,5 +162,39 @@
   <!-- Integração da IA -->
   <link rel="stylesheet" href="style.css">
   <script src="main.js"></script>
-</body>
+</body><!-- Coloque isso antes do fechamento da tag </body> -->
+
+<style>
+    /* Aumenta o espaço disponível para os anúncios no rodapé */
+    #footer-ad {
+        min-height: 350px; /* Aumenta a altura do rodapé */
+        margin-top: 30px;  /* Adiciona uma margem extra acima do anúncio */
+        text-align: center; /* Centraliza o conteúdo */
+        background-color: #f0f0f0; /* Cor suave no fundo (opcional) */
+    }
+</style>
+
+<!-- Aqui fica a área do anúncio do rodapé -->
+<footer>
+    <div id="footer-ad">
+        <!-- Banner Nativo será inserido aqui -->
+    </div>
+</footer>
+
+<script>
+    // Código do Banner Nativo da AdSterra
+    window.onload = function() {
+        var footerAd = document.getElementById('footer-ad');
+        footerAd.innerHTML = `
+            <script type="text/javascript">
+                (function(){
+                    var adsterra=document.createElement("script");
+                    adsterra.type="text/javascript";
+                    adsterra.src="https://cdn.adsterra.com/ads/XXXX.js"; // Substitua com o código do seu Banner Nativo
+                    document.body.appendChild(adsterra);
+                })();
+            </script>
+        `;
+    };
+</script>
 </html>
