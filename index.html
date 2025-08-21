@@ -48,7 +48,53 @@
     @media (max-width:860px){ .hero{grid-template-columns:1fr;}}
   </style>
 </head>
-<body>
+<body><body>
+    <!-- Outros elementos aqui -->
+
+    <!-- Cole o código aqui, no meio do HTML -->
+    <script>
+        window.onload = function() {
+            var adContainer = document.getElementById("footer-ad-container"); // Container dos anúncios
+            var footer = document.querySelector('footer');
+            var adHeight = 700; // Altura de cada bloco de anúncio (ajuste conforme necessário)
+            
+            // Função para ajustar automaticamente a altura dos blocos de anúncio
+            function updateAdSpace() {
+                var ads = adContainer.getElementsByClassName("ad-block"); // Pega os blocos de anúncios
+                var totalHeight = ads.length * adHeight; // Calcula a altura total baseada no número de anúncios
+
+                // Ajusta o tamanho do rodapé conforme o número de anúncios
+                adContainer.style.minHeight = totalHeight + "px"; // Ajusta o rodapé para acomodar os anúncios
+                footer.style.minHeight = totalHeight + 'px'; // Atualiza a altura do rodapé
+            }
+
+            // Função para adicionar um novo anúncio automaticamente
+            function addNewAd() {
+                var newAd = document.createElement("div");
+                newAd.classList.add("ad-block"); // Adiciona uma classe para controle
+                newAd.style.minHeight = adHeight + "px"; // Define a altura do novo anúncio
+                newAd.style.backgroundColor = "#1d1f28"; // Cor do fundo
+                newAd.style.color = "white"; // Cor do texto
+                newAd.style.textAlign = "center"; // Alinha o texto ao centro
+
+                // Código do anúncio que você pode colocar aqui
+                newAd.innerHTML = "<!-- Código do novo anúncio aqui -->";
+
+                // Adiciona o novo anúncio ao container
+                adContainer.appendChild(newAd);
+
+                // Atualiza o espaço do rodapé para refletir a mudança
+                updateAdSpace();
+            }
+
+            // Chama a função para adicionar um novo anúncio
+            // Exemplo de como chamar:
+            // addNewAd();  // Chame a função para adicionar um anúncio
+        }
+    </script>
+
+    <!-- Outros elementos aqui -->
+</body>
   <header>
     <div class="wrap nav">
       <div class="brand">Nova Fusion Master</div>
