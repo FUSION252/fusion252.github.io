@@ -161,6 +161,184 @@
 
   <!-- Integração da IA -->
   <link rel="stylesheet" href="style.css">
-  <script src="main.js"></script>
+  <script src="main.js"></script><!-- Iara Chat Assistente -->
+<style>
+  #iara-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background: #38bdf8;
+    color: #000;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: grab;
+    box-shadow: 0 4px 12px rgba(0,0,0,.3);
+    display: none;
+    z-index: 9999;
+    user-select: none;
+  }
+  #iara-panel {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 350px;
+    height: 420px;
+    background: #1e293b;
+    color: #f1f5f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.4);
+    display: none;
+    z-index: 9999;
+    overflow: hidden;
+    resize: both;
+  }
+  #iara-header {
+    background: #0ea5e9;
+    color: #000;
+    padding: 8px;
+    cursor: grab;
+    font-weight: bold;
+  }
+  #iara-messages {
+    height: 280px;
+    overflow-y: auto;
+    padding: 10px;
+    font-size: 14px;
+  }
+  .msg { margin: 6px 0; padding: 8px; border-radius: 8px; max-width: 80%; }
+  .user { background: #38bdf8; color:#000; margin-left:auto; text-align:right; }
+  .iara { background: #334155; color:#fff; margin-right:auto; }
+  #iara-input-box { display:flex; padding:8px; border-top:1px solid #334155; }
+  #iara-input { flex:1; padding:8px; border-radius:6px; border:none; }
+  #iara-send { margin-left:6px; padding:8px 12px; border:none; border-radius:6px; background:#38bdf8; font-weight:bold; cursor:pointer; }
+</style>
+
+<button id="iara-btn">I</button>
+
+<div id="iara-panel">
+  <div id="iara-header">Iara Assistente 🤖</div>
+  <div id="iara-messages"></div>
+  <div id="iara-input-box">
+    <input id="iara-input" placeholder="Digite aqui...">
+    <button id="iara-send">Enviar</button>
+  </div>
+</div>
+
+<script>
+  const iaraBtn = document.getElementById("iara-btn");
+  const iaraPanel = document.getElementById("iara-panel");
+  const iaraMessages = document.getElementById("iara-messages");
+  const iaraInput = document.getElementById("iara-input");
+
+  // Mostrar/Ocultar painel
+  iaraBtn.onclick = () => {
+    iaraPanel.style.display = (iaraPanel.style.display === "block") ? "none" : "block";
+  };
+
+  // Enviar mensagem
+  document.getElementById("iara-send").onclick = sendMessage;
+  iaraInput.addEventListener("keypress", e => { if(e.key==="Enter") sendMessage(); });
+
+  function sendMessage(){
+    const text = iaraInput.value.trim();
+    if(!text) return;
+    addMessage(text,"user");
+    iaraInput.value="";
+    processMessage(text);
+  }
+
+  // Mostrar mensagens no chat
+  function addMessage(text, sender){
+    const div = document.createElement("div");
+    div.className = "msg "+sender;
+    div.textContent = text;
+    iaraMessages.appendChild(div);
+    iaraMessages.scrollTop = iaraMessages.scrollHeight;
+  }
+
+  // Processar mensagens simples
+  function processMessage(text){
+    let reply = "Não entendi. Tente de novo.";
+    if(text.toLowerCase().includes("oi")) reply = "Olá! Estou ativa e pronta.";
+    if(text.toLowerCase().includes("inserir")){
+      reply = "Entendido. Estou inserindo o código no <head>...";
+      setTimeout(()=> addMessage("✅ Código adicionado com sucesso!","iara"),1000);
+    }
+    if(text.toLowerCase().includes("dormir")){
+      reply = "Tudo bem. Estou indo descansar...";
+      setTimeout(()=>{iaraPanel.style.display="none";iaraBtn.style.display="none";},1500);
+    }
+    addMessage(reply,"iara");
+  }
+
+  // Reconhecimento de voz
+  const recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (recognition) {
+    const recog = new recognition();
+    recog.lang = "pt-BR";
+    recog.continuous = true;
+    recog.onresult = (event) => {
+      const command = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+      if(command.includes("acordar iara")) iaraBtn.style.display="block";
+      if(command.includes("adormecer iara")) { iaraBtn.style.display="none"; iaraPanel.style.display="none"; }
+    };
+    recog.start();
+  }
+
+  // Botão arrastável
+  (function dragElement(elmnt) {
+    let pos1=0,pos2=0,pos3=0,pos4=0;
+    elmnt.onmousedown = dragMouseDown;
+    elmnt.ontouchstart = dragMouseDown;
+    function dragMouseDown(e) {
+      e = e || window.event;
+      if(e.type==="touchstart"){ pos3=e.touches[0].clientX; pos4=e.touches[0].clientY; }
+      else { e.preventDefault(); pos3=e.clientX; pos4=e.clientY; document.onmouseup=closeDragElement; document.onmousemove=elementDrag; }
+      document.ontouchend = closeDragElement;
+      document.ontouchmove = elementDrag;
+    }
+    function elementDrag(e) {
+      e = e || window.event;
+      let clientX,clientY;
+      if(e.type==="touchmove"){ clientX=e.touches[0].clientX; clientY=e.touches[0].clientY; }
+      else { clientX=e.clientX; clientY=e.clientY; }
+      pos1=pos3-clientX; pos2=pos4-clientY; pos3=clientX; pos4=clientY;
+      elmnt.style.top=(elmnt.offsetTop-pos2)+"px";
+      elmnt.style.left=(elmnt.offsetLeft-pos1)+"px";
+      elmnt.style.bottom="auto"; elmnt.style.right="auto";
+    }
+    function closeDragElement(){ document.onmouseup=null; document.onmousemove=null; document.ontouchend=null; document.ontouchmove=null; }
+  })(iaraBtn);
+
+  // Painel arrastável
+  (function dragElement(elmnt) {
+    const header=document.getElementById("iara-header");
+    let pos1=0,pos2=0,pos3=0,pos4=0;
+    header.onmousedown = dragMouseDown;
+    header.ontouchstart = dragMouseDown;
+    function dragMouseDown(e) {
+      e = e || window.event;
+      if(e.type==="touchstart"){ pos3=e.touches[0].clientX; pos4=e.touches[0].clientY; }
+      else { e.preventDefault(); pos3=e.clientX; pos4=e.clientY; document.onmouseup=closeDragElement; document.onmousemove=elementDrag; }
+      document.ontouchend = closeDragElement;
+      document.ontouchmove = elementDrag;
+    }
+    function elementDrag(e) {
+      e = e || window.event;
+      let clientX,clientY;
+      if(e.type==="touchmove"){ clientX=e.touches[0].clientX; clientY=e.touches[0].clientY; }
+      else { clientX=e.clientX; clientY=e.clientY; }
+      pos1=pos3-clientX; pos2=pos4-clientY; pos3=clientX; pos4=clientY;
+      elmnt.style.top=(elmnt.offsetTop-pos2)+"px";
+      elmnt.style.left=(elmnt.offsetLeft-pos1)+"px";
+      elmnt.style.bottom="auto"; elmnt.style.right="auto";
+    }
+    function closeDragElement(){ document.onmouseup=null; document.onmousemove=null; document.ontouchend=null; document.ontouchmove=null; }
+  })(iaraPanel);
+</script>
 </body>
 </html>
