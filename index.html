@@ -162,5 +162,250 @@
   <!-- Integração da IA -->
   <link rel="stylesheet" href="style.css">
   <script src="main.js"></script>
-</body>
+</body><!-- IARA – Assistente de Automação do Site -->
+<style>
+  /* Botão flutuante (arrastável) */
+  #iara-btn{
+    position:fixed;bottom:20px;right:20px;width:60px;height:60px;border-radius:50%;
+    border:none;background:#38bdf8;color:#000;font-size:18px;font-weight:700;cursor:grab;
+    box-shadow:0 4px 12px rgba(0,0,0,.3);display:none;z-index:9999;user-select:none
+  }
+  /* Painel (arrastável e redimensionável) */
+  #iara-panel{
+    position:fixed;bottom:100px;right:20px;width:360px;height:460px;background:#0f172a;color:#e2e8f0;
+    border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.45);display:none;z-index:9999;overflow:hidden;resize:both
+  }
+  #iara-header{background:#0ea5e9;color:#0a0a0a;padding:10px 12px;cursor:grab;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+  #iara-messages{height:250px;overflow-y:auto;padding:10px;font-size:14px;background:#111827}
+  .msg{margin:6px 0;padding:8px;border-radius:8px;max-width:85%}
+  .user{background:#38bdf8;color:#000;margin-left:auto;text-align:right}
+  .iara{background:#1f2937;color:#e5e7eb;margin-right:auto}
+  #iara-tools{padding:8px;border-top:1px solid #1f2937;background:#0b1220}
+  #iara-tools textarea{width:100%;height:90px;border-radius:8px;border:none;padding:8px;background:#111827;color:#e5e7eb}
+  #iara-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  #iara-actions button{flex:1 1 48%;padding:8px;border:none;border-radius:8px;background:#38bdf8;color:#000;font-weight:700;cursor:pointer}
+  #iara-inputbox{display:flex;gap:6px;padding:8px;border-top:1px solid #1f2937;background:#0b1220}
+  #iara-input{flex:1;padding:8px;border:none;border-radius:8px;background:#111827;color:#e5e7eb}
+  #iara-send,#iara-voice,#iara-sleep{padding:8px 10px;border:none;border-radius:8px;background:#38bdf8;color:#000;font-weight:800;cursor:pointer}
+  #iara-voice.active{background:#22c55e;color:#041008}
+</style>
+
+<button id="iara-btn" title="Abrir Iara">I</button>
+
+<div id="iara-panel" role="dialog" aria-label="Iara Assistente">
+  <div id="iara-header">
+    <span>Iara Assistente 🤖</span>
+    <button id="iara-sleep" title="Adormecer">Dormir</button>
+  </div>
+
+  <div id="iara-messages" aria-live="polite"></div>
+
+  <div id="iara-tools">
+    <textarea id="iara-code" placeholder="Cole aqui o SCRIPT/TAG que deseja inserir (ex.: &lt;script src=...&gt; ou &lt;script&gt;...&lt;/script&gt;)"></textarea>
+    <div id="iara-actions">
+      <button id="iara-insert-head"   title="Insere no <head>">Inserir no &lt;head&gt;</button>
+      <button id="iara-insert-body"   title="Insere no final do <body>">Inserir no &lt;body&gt;</button>
+      <button id="iara-list"          title="Lista scripts atuais">Listar scripts</button>
+      <button id="iara-remove"        title="Remove por palavra-chave">Remover por palavra</button>
+      <button id="iara-test"          title="Testa em sandbox sem afetar a página">Testar sandbox</button>
+      <button id="iara-clear"         title="Limpa o editor">Limpar editor</button>
+    </div>
+  </div>
+
+  <div id="iara-inputbox">
+    <input id="iara-input" placeholder='Comandos: "inserir head", "inserir body", "listar", "remover <palavra>", "dormir", "ajuda"...'>
+    <button id="iara-send">Enviar</button>
+    <button id="iara-voice" title="Falar com a Iara">🎤</button>
+  </div>
+</div>
+
+<script>
+/* ========= Referências ========= */
+const $btn = document.getElementById('iara-btn');
+const $panel = document.getElementById('iara-panel');
+const $header = document.getElementById('iara-header');
+const $messages = document.getElementById('iara-messages');
+const $input = document.getElementById('iara-input');
+const $send = document.getElementById('iara-send');
+const $sleep = document.getElementById('iara-sleep');
+const $voice = document.getElementById('iara-voice');
+const $code = document.getElementById('iara-code');
+const $insertHead = document.getElementById('iara-insert-head');
+const $insertBody = document.getElementById('iara-insert-body');
+const $list = document.getElementById('iara-list');
+const $remove = document.getElementById('iara-remove');
+const $test = document.getElementById('iara-test');
+const $clear = document.getElementById('iara-clear');
+
+/* ========= UI básica ========= */
+function showBtn(){ $btn.style.display='block'; }
+function hideAll(){ $btn.style.display='none'; $panel.style.display='none'; }
+$btn.onclick = ()=>{ $panel.style.display = ($panel.style.display==='block'?'none':'block'); };
+$sleep.onclick = ()=>{ addIara('Indo dormir. Diga "Acordar Iara" para me chamar.'); hideAll(); };
+
+/* ========= Mensagens ========= */
+function addMsg(text, cls){
+  const d=document.createElement('div');
+  d.className='msg '+cls; d.textContent=text;
+  $messages.appendChild(d); $messages.scrollTop=$messages.scrollHeight;
+}
+const addUser=(t)=>addMsg(t,'user');
+const addIara=(t)=>addMsg(t,'iara');
+
+/* ========= Parser seguro de fragmentos ========= */
+function parseFragment(html){
+  // Usa DOMParser para evitar texto “vazando” na página
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(`<div id="__frag">${html}</div>`, 'text/html');
+  return doc.body.firstElementChild; // <div id="__frag">…</div>
+}
+
+/* ========= Inserção ========= */
+function insertInto(target){ // 'head' | 'body'
+  const raw = $code.value.trim();
+  if(!raw){ addIara('Cole um código/script no editor antes.'); return; }
+  try{
+    const frag = parseFragment(raw);
+    // Move apenas elementos suportados (script, link, meta, style, noscript)
+    const allowed = ['SCRIPT','LINK','META','STYLE','NOSCRIPT'];
+    const toAppend=[];
+    frag.childNodes.forEach(n=>{
+      if(n.nodeType===1 && allowed.includes(n.tagName)){ toAppend.push(n); }
+      else if(n.nodeType===3 && !/^\s*$/.test(n.textContent)){ /* ignora texto visível */ }
+    });
+    if(toAppend.length===0){ addIara('Nada para inserir. Certifique-se de colar <script>, <link>, <style> ou <meta>.'); return; }
+    toAppend.forEach(el=>{
+      (target==='head'?document.head:document.body).appendChild(el);
+    });
+    addIara(`✅ Inserido ${toAppend.length} elemento(s) no <${target}>.`);
+  }catch(e){
+    addIara('❌ Erro ao analisar o código: '+e.message);
+  }
+}
+
+/* ========= Listar scripts ========= */
+function listScripts(){
+  const arr=[...document.scripts].map((s,i)=> s.src ? `${i+1}. src: ${s.src}` :
+                                           `${i+1}. inline: ${ (s.textContent||'').trim().slice(0,60).replace(/\s+/g,' ') }…`);
+  if(arr.length===0){ addIara('Nenhum <script> encontrado.'); return; }
+  addIara('📃 Scripts ativos:\n'+arr.join('\n'));
+}
+
+/* ========= Remover por palavra-chave ========= */
+function removeByKeyword(kw){
+  if(!kw){ addIara('Informe a palavra-chave para remover (ex.: "adsbygoogle" ou parte do src).'); return; }
+  let removed=0;
+  [...document.scripts].forEach(s=>{
+    const txt=(s.textContent||'').toLowerCase();
+    const src=(s.src||'').toLowerCase();
+    if(txt.includes(kw.toLowerCase()) || src.includes(kw.toLowerCase())){
+      s.remove(); removed++;
+    }
+  });
+  addIara(removed?`🧹 Removidos ${removed} script(s) contendo "${kw}".`:`Nenhum script contendo "${kw}" foi encontrado.`);
+}
+
+/* ========= Sandbox (não afeta a página) ========= */
+let sandboxFrame=null;
+function testSandbox(){
+  const raw=$code.value.trim();
+  if(!raw){ addIara('Cole um código para testar.'); return; }
+  if(!sandboxFrame){
+    sandboxFrame=document.createElement('iframe');
+    sandboxFrame.setAttribute('sandbox','allow-scripts');
+    sandboxFrame.style.width='1px'; sandboxFrame.style.height='1px'; sandboxFrame.style.position='absolute'; sandboxFrame.style.left='-9999px';
+    document.body.appendChild(sandboxFrame);
+  }
+  const doc=sandboxFrame.contentDocument;
+  doc.open();
+  doc.write(`<!doctype html><meta charset="utf-8"><title>Sandbox</title>${raw}`);
+  doc.close();
+  addIara('🧪 Código executado no sandbox (isolado). Use "Inserir" para aplicar no site.');
+}
+
+/* ========= Ações dos botões ========= */
+$insertHead.onclick = ()=>insertInto('head');
+$insertBody.onclick = ()=>insertInto('body');
+$list.onclick = listScripts;
+$remove.onclick = ()=>{
+  const kw = prompt('Remover scripts que contenham a palavra (no src ou no conteúdo):');
+  if(kw) removeByKeyword(kw);
+};
+$test.onclick = testSandbox;
+$clear.onclick = ()=>{ $code.value=''; addIara('Editor limpo.'); };
+
+/* ========= Chat / Comandos de texto ========= */
+$send.onclick = sendText;
+$input.addEventListener('keydown',e=>{ if(e.key==='Enter') sendText(); });
+function sendText(){
+  const t=$input.value.trim(); if(!t) return;
+  addUser(t); $input.value='';
+  handleCommand(t);
+}
+function handleCommand(t){
+  const msg=t.toLowerCase();
+  if(msg==='ajuda' || msg.includes('help')){
+    addIara('Comandos: "inserir head", "inserir body", "listar", "remover PALAVRA", "testar", "dormir". Você também pode usar os botões acima do editor.');
+    return;
+  }
+  if(msg.startsWith('remover ')){ removeByKeyword(msg.replace('remover ','').trim()); return; }
+  if(msg.includes('inserir') && msg.includes('head')){ insertInto('head'); return; }
+  if(msg.includes('inserir') && msg.includes('body')){ insertInto('body'); return; }
+  if(msg.startsWith('listar')){ listScripts(); return; }
+  if(msg.startsWith('testar')){ testSandbox(); return; }
+  if(msg.includes('dormir')){ $sleep.click(); return; }
+  addIara('Não entendi. Diga "ajuda" para ver os comandos.');
+}
+
+/* ========= Voz: acordar/adormecer + ditado no chat ========= */
+let recog=null, listeningChat=false;
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(SR){
+  // Acordar/Adormecer por voz (sempre ouvindo)
+  const wake = new SR(); wake.lang='pt-BR'; wake.continuous=true; wake.interimResults=false;
+  wake.onresult = (e)=>{
+    const text=e.results[e.results.length-1][0].transcript.trim().toLowerCase();
+    if(text.includes('acordar iara')){ showBtn(); addIara('Acordei! Clique no botão "I" ou diga seus comandos.'); }
+    if(text.includes('adormecer iara')){ hideAll(); }
+  };
+  wake.onerror=()=>{ try{wake.start()}catch{} };
+  try{ wake.start(); }catch{}
+
+  // Ditado para o chat (pressione 🎤)
+  $voice.onclick=()=>{
+    if(listeningChat){ try{recog.stop()}catch{}; $voice.classList.remove('active'); listeningChat=false; return; }
+    if(!recog) recog=new SR();
+    recog.lang='pt-BR'; recog.continuous=false; recog.interimResults=false;
+    recog.onresult=(e)=>{ const tx=e.results[0][0].transcript; $input.value=($input.value?'':'')+tx; };
+    recog.onend=()=>{ $voice.classList.remove('active'); listeningChat=false; };
+    recog.start(); $voice.classList.add('active'); listeningChat=true;
+  };
+}
+
+/* ========= Arrastar botão ========= */
+(function drag(el){
+  let px=0,py=0,cx=0,cy=0;
+  el.onmousedown=start; el.ontouchstart=start;
+  function start(e){ e=e||window.event; if(e.type==='touchstart'){cx=e.touches[0].clientX;cy=e.touches[0].clientY;} else {e.preventDefault();cx=e.clientX;cy=e.clientY;document.onmouseup=end;document.onmousemove=move;} document.ontouchend=end;document.ontouchmove=move; }
+  function move(e){ e=e||window.event; let x,y; if(e.type==='touchmove'){x=e.touches[0].clientX;y=e.touches[0].clientY;}else{x=e.clientX;y=e.clientY;}
+    px=cx-x; py=cy-y; cx=x; cy=y; el.style.top=(el.offsetTop-py)+'px'; el.style.left=(el.offsetLeft-px)+'px'; el.style.bottom='auto'; el.style.right='auto'; }
+  function end(){ document.onmouseup=null; document.onmousemove=null; document.ontouchend=null; document.ontouchmove=null; }
+})($btn);
+
+/* ========= Arrastar painel pelo cabeçalho ========= */
+(function drag(el,handle){
+  let px=0,py=0,cx=0,cy=0;
+  handle.onmousedown=start; handle.ontouchstart=start;
+  function start(e){ e=e||window.event; if(e.type==='touchstart'){cx=e.touches[0].clientX;cy=e.touches[0].clientY;} else {e.preventDefault();cx=e.clientX;cy=e.clientY;document.onmouseup=end;document.onmousemove=move;} document.ontouchend=end;document.ontouchmove=move; }
+  function move(e){ e=e||window.event; let x,y; if(e.type==='touchmove'){x=e.touches[0].clientX;y=e.touches[0].clientY;}else{x=e.clientX;y=e.clientY;}
+    px=cx-x; py=cy-y; cx=x; cy=y; el.style.top=(el.offsetTop-py)+'px'; el.style.left=(el.offsetLeft-px)+'px'; el.style.bottom='auto'; el.style.right='auto'; }
+  function end(){ document.onmouseup=null; document.onmousemove=null; document.ontouchend=null; document.ontouchmove=null; }
+})($panel,$header);
+
+/* ========= Inicial ========= */
+addIara('Diga "Acordar Iara" para exibir o botão. Use os botões para inserir, listar, remover ou testar scripts. Para ajuda, digite "ajuda".');
+
+/* ========= API manual opcional ========= */
+window.iaraWake = ()=>{ showBtn(); };
+</script>
 </html>
