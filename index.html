@@ -161,6 +161,229 @@
 
   <!-- Integração da IA -->
   <link rel="stylesheet" href="style.css">
-  <script src="main.js"></script>
+  <script src="main.js"></script><!-- Iara Assistente Virtual -->
+<div id="iara-container">
+  <div id="iara-header">
+    <span>Iara Assistente</span>
+    <button id="iara-close">×</button>
+  </div>
+  <div id="iara-messages"></div>
+  <div id="iara-input-area">
+    <input type="text" id="iara-input" placeholder="Digite ou fale com a Iara..." />
+    <button id="iara-send">Enviar</button>
+    <button id="iara-voice">🎤</button>
+  </div>
+</div>
+
+<button id="iara-toggle">🤖 Iara</button>
+
+<style>
+  /* Container principal */
+  #iara-container {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 320px;
+    height: 420px;
+    background: #1d1f28;
+    color: white;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    z-index: 9999;
+  }
+
+  #iara-header {
+    background: #111320;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    position: relative;
+  }
+
+  #iara-header button {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  #iara-messages {
+    height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+  }
+
+  .iara-msg {
+    margin: 8px 0;
+    padding: 8px;
+    border-radius: 8px;
+    max-width: 80%;
+  }
+
+  .user {
+    background: #2d2f3a;
+    text-align: right;
+    margin-left: auto;
+  }
+
+  .iara {
+    background: #3a3f5a;
+    text-align: left;
+    margin-right: auto;
+  }
+
+  #iara-input-area {
+    display: flex;
+    border-top: 1px solid #444;
+  }
+
+  #iara-input {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    outline: none;
+  }
+
+  #iara-send, #iara-voice {
+    background: #444;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+
+  #iara-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #111320;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    cursor: move;
+    font-size: 22px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    z-index: 9999;
+  }
+</style>
+
+<script>
+(function() {
+  const iaraToggle = document.getElementById("iara-toggle");
+  const iaraContainer = document.getElementById("iara-container");
+  const iaraClose = document.getElementById("iara-close");
+  const iaraMessages = document.getElementById("iara-messages");
+  const iaraInput = document.getElementById("iara-input");
+  const iaraSend = document.getElementById("iara-send");
+  const iaraVoice = document.getElementById("iara-voice");
+
+  let recognition;
+  if ("webkitSpeechRecognition" in window) {
+    recognition = new webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.lang = "pt-BR";
+  }
+
+  function addMessage(text, sender="iara") {
+    const div = document.createElement("div");
+    div.className = "iara-msg " + sender;
+    div.innerText = text;
+    iaraMessages.appendChild(div);
+    iaraMessages.scrollTop = iaraMessages.scrollHeight;
+  }
+
+  function processCommand(command) {
+    command = command.toLowerCase();
+
+    if (command.includes("trocar fundo para")) {
+      const color = command.replace("trocar fundo para", "").trim();
+      document.body.style.background = color;
+      addMessage("Cor do fundo alterada para " + color, "iara");
+    } 
+    else if (command.includes("adicionar anúncio")) {
+      const ad = document.createElement("div");
+      ad.innerHTML = "<p style='background:#ccc;padding:10px;'>[Bloco de anúncio simulado]</p>";
+      document.body.appendChild(ad);
+      addMessage("Anúncio adicionado com sucesso!", "iara");
+    }
+    else if (command.includes("adormecer iara")) {
+      iaraContainer.style.display = "none";
+      addMessage("Iara entrando em modo de repouso.", "iara");
+    }
+    else {
+      addMessage("Você disse: " + command, "iara");
+    }
+  }
+
+  iaraSend.addEventListener("click", () => {
+    const text = iaraInput.value;
+    if (text.trim() !== "") {
+      addMessage(text, "user");
+      processCommand(text);
+      iaraInput.value = "";
+    }
+  });
+
+  iaraInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      iaraSend.click();
+    }
+  });
+
+  if (recognition) {
+    iaraVoice.addEventListener("click", () => {
+      recognition.start();
+    });
+
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      addMessage(transcript, "user");
+      if (transcript.toLowerCase().includes("acordar iara")) {
+        iaraContainer.style.display = "block";
+        addMessage("Iara ativada, pronta para ajudar!", "iara");
+      } else {
+        processCommand(transcript);
+      }
+    };
+  }
+
+  iaraClose.addEventListener("click", () => {
+    iaraContainer.style.display = "none";
+  });
+
+  // botão arrastável
+  iaraToggle.addEventListener("mousedown", function(e) {
+    let shiftX = e.clientX - iaraToggle.getBoundingClientRect().left;
+    let shiftY = e.clientY - iaraToggle.getBoundingClientRect().top;
+
+    function moveAt(pageX, pageY) {
+      iaraToggle.style.left = pageX - shiftX + "px";
+      iaraToggle.style.top = pageY - shiftY + "px";
+      iaraToggle.style.position = "fixed";
+    }
+
+    function onMouseMove(e) {
+      moveAt(e.pageX, e.pageY);
+    }
+
+    document.addEventListener("mousemove", onMouseMove);
+
+    iaraToggle.onmouseup = function() {
+      document.removeEventListener("mousemove", onMouseMove);
+      iaraToggle.onmouseup = null;
+    };
+  });
+
+})();
+</script>
 </body>
 </html>
