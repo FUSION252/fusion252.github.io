@@ -160,6 +160,555 @@
   </footer>
 
   <!-- Integração da IA -->
-<script src="main.js"></script>
+<script src="main.js"></script><!-- IARA ULTRA – VERSÃO 12 (COMPLETA) -->
+<div id="iara12-root" style="display:none;">
+  <button id="iara12-float" title="Arraste • Clique para abrir">Iara</button>
+
+  <div id="iara12-ui" role="dialog" aria-hidden="true">
+    <div id="iara12-top">
+      <div id="iara12-title">Iara • Versão 12 (Ultra)</div>
+      <div id="iara12-controls">
+        <button id="iara12-mode">Modo: AUTÔNOMO</button>
+        <button id="iara12-min">_</button>
+        <button id="iara12-close">×</button>
+      </div>
+    </div>
+
+    <div id="iara12-body">
+      <div id="iara12-left">
+        <div id="iara12-tabs">
+          <button class="i12-tab active" data-tab="chat">Chat</button>
+          <button class="i12-tab" data-tab="panel">Painel</button>
+          <button class="i12-tab" data-tab="sites">Sites</button>
+          <button class="i12-tab" data-tab="commands">Comandos</button>
+          <button class="i12-tab" data-tab="settings">Config</button>
+        </div>
+
+        <div id="iara12-chat" class="i12-tabcontent">
+          <div id="iara12-msgs"></div>
+          <div id="iara12-inputrow">
+            <input id="iara12-input" placeholder="Fale ou digite (ex.: 'otimizar página', 'adicionar anúncio adsterra')">
+            <button id="iara12-send">Enviar</button>
+            <button id="iara12-voice" title="Falar">🎙️</button>
+          </div>
+        </div>
+
+        <div id="iara12-panel" class="i12-tabcontent" style="display:none;">
+          <h4>Ações recentes</h4>
+          <div id="iara12-log"></div>
+          <div class="i12-row">
+            <button id="iara12-export">Exportar Log</button>
+            <button id="iara12-clearlog">Limpar Log</button>
+            <button id="iara12-report">Baixar Relatório</button>
+          </div>
+        </div>
+
+        <div id="iara12-sites" class="i12-tabcontent" style="display:none;">
+          <h4>Site atual</h4>
+          <div id="iara12-siteinfo"></div>
+          <div class="i12-row" style="margin-top:8px;">
+            <button id="iara12-scan">Scan Scripts</button>
+            <button id="iara12-listads">Listar anúncios</button>
+            <button id="iara12-opt">Otimizar página</button>
+          </div>
+          <pre id="iara12-inspector" class="i12-pre"></pre>
+        </div>
+
+        <div id="iara12-commands" class="i12-tabcontent" style="display:none;">
+          <h4>Comandos disponíveis (resumo)</h4>
+          <ul id="iara12-cmdlist"></ul>
+        </div>
+
+        <div id="iara12-settings" class="i12-tabcontent" style="display:none;">
+          <h4>Configurações</h4>
+          <div class="i12-grid">
+            <label><input type="checkbox" id="iara12-autoListAds" checked> Listar anúncios ao iniciar</label>
+            <label><input type="checkbox" id="iara12-autoScan" checked> Fazer scan de scripts ao iniciar</label>
+            <label><input type="checkbox" id="iara12-bgListener" checked> Ouvir “acordar Iara”</label>
+            <label><input type="checkbox" id="iara12-dark" > Forçar modo dark do painel</label>
+          </div>
+          <div class="i12-row" style="margin-top:8px;">
+            <button id="iara12-save">Salvar preferências</button>
+            <button id="iara12-reset">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="iara12-right">
+        <h4>Inspector rápido</h4>
+        <div class="i12-minirow">
+          <button data-mini="iframes">Listar iframes</button>
+          <button data-mini="links">Listar links externos</button>
+          <button data-mini="perf">Tempo de carregamento</button>
+          <button data-mini="heavy">Scripts pesados</button>
+        </div>
+        <pre id="iara12-miniout" class="i12-pre"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #iara12-float{
+    position:fixed; bottom:20px; right:20px; width:64px; height:64px; border-radius:50%;
+    border:none; background:#1d1f28; color:#fff; font-weight:700; cursor:grab;
+    box-shadow:0 8px 20px rgba(0,0,0,.4); z-index:2147483000; display:none;
+  }
+  #iara12-ui{
+    position:fixed; bottom:92px; right:20px; width:860px; height:560px; background:#fff;
+    border-radius:14px; overflow:hidden; box-shadow:0 16px 44px rgba(0,0,0,.45);
+    font-family:Arial,Helvetica,sans-serif; z-index:2147483000; display:none;
+  }
+  #iara12-top{display:flex;justify-content:space-between;align-items:center;background:#1d1f28;color:#fff;padding:12px 14px}
+  #iara12-controls button{margin-left:6px;background:transparent;border:1px solid rgba(255,255,255,.15);color:#fff;padding:6px 8px;border-radius:8px;cursor:pointer}
+  #iara12-body{display:flex;height:calc(100% - 56px)}
+  #iara12-left{width:60%;border-right:1px solid #eee;display:flex;flex-direction:column;background:#fafafa}
+  #iara12-right{width:40%;padding:12px;background:#f6f7fb;overflow:auto}
+  #iara12-tabs{display:flex;gap:6px;padding:8px;background:#fff;border-bottom:1px solid #eee}
+  .i12-tab{flex:1;padding:8px;border-radius:8px;border:1px solid #ddd;background:#eee;cursor:pointer}
+  .i12-tab.active{background:#1d1f28;color:#fff}
+  .i12-tabcontent{flex:1;padding:12px;overflow:auto}
+  #iara12-msgs{height:360px;overflow:auto;background:#fff;border:1px solid #eee;border-radius:10px;padding:8px}
+  .i12-msg.user{text-align:right;color:#1d1f28;margin:8px}
+  .i12-msg.iara{text-align:left;color:#0b66c3;margin:8px}
+  #iara12-inputrow{display:flex;gap:6px;margin-top:8px}
+  #iara12-input{flex:1;padding:10px;border:1px solid #ddd;border-radius:8px}
+  #iara12-send,#iara12-voice{padding:10px 12px;border-radius:8px;border:1px solid #1d1f28;background:#1d1f28;color:#fff;cursor:pointer}
+  #iara12-log{max-height:260px;overflow:auto;background:#fff;border:1px solid #eee;border-radius:10px;padding:8px}
+  #iara12-siteinfo{background:#fff;border:1px solid #eee;border-radius:10px;padding:8px}
+  .i12-pre{background:#fff;border:1px solid #eee;border-radius:10px;padding:8px;white-space:pre-wrap;font-size:12px}
+  .i12-row{display:flex;gap:8px;flex-wrap:wrap}
+  .i12-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .i12-minirow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+  @media(max-width:960px){#iara12-ui{width:94%;right:3%}}
+</style>
+
+<script>
+(function(){
+  // ===== Estado base =====
+  const host = location.hostname;
+  const root = document.getElementById('iara12-root');
+  const ui = document.getElementById('iara12-ui');
+  const floatBtn = document.getElementById('iara12-float');
+  const modeBtn = document.getElementById('iara12-mode');
+  const minBtn = document.getElementById('iara12-min');
+  const closeBtn = document.getElementById('iara12-close');
+  const tabs = [...document.querySelectorAll('.i12-tab')];
+  const msgs = document.getElementById('iara12-msgs');
+  const input = document.getElementById('iara12-input');
+  const sendBtn = document.getElementById('iara12-send');
+  const voiceBtn = document.getElementById('iara12-voice');
+  const logBox = document.getElementById('iara12-log');
+  const siteInfo = document.getElementById('iara12-siteinfo');
+  const inspector = document.getElementById('iara12-inspector');
+  const cmdList = document.getElementById('iara12-cmdlist');
+  const miniOut = document.getElementById('iara12-miniout');
+
+  const scanBtn = document.getElementById('iara12-scan');
+  const listAdsBtn = document.getElementById('iara12-listads');
+  const optBtn = document.getElementById('iara12-opt');
+
+  const exportBtn = document.getElementById('iara12-export');
+  const clearLogBtn = document.getElementById('iara12-clearlog');
+  const reportBtn = document.getElementById('iara12-report');
+
+  const chkAutoListAds = document.getElementById('iara12-autoListAds');
+  const chkAutoScan = document.getElementById('iara12-autoScan');
+  const chkBgListener = document.getElementById('iara12-bgListener');
+  const chkDark = document.getElementById('iara12-dark');
+  const saveBtn = document.getElementById('iara12-save');
+  const resetBtn = document.getElementById('iara12-reset');
+
+  // Preferências (persistentes)
+  const LSKEY = 'IARA12_PREFS_v1';
+  const DEF_PREF = { autoListAds:true, autoScan:true, bgListener:true, dark:false, mode:'AUTÔNOMO' };
+  let prefs = {...DEF_PREF, ...(JSON.parse(localStorage.getItem(LSKEY)||'{}'))};
+  chkAutoListAds.checked = !!prefs.autoListAds;
+  chkAutoScan.checked = !!prefs.autoScan;
+  chkBgListener.checked = !!prefs.bgListener;
+  chkDark.checked = !!prefs.dark;
+
+  // Modo (AUTÔNOMO / SUGGEST)
+  let mode = prefs.mode || 'AUTÔNOMO';
+  modeBtn.textContent = 'Modo: ' + mode;
+
+  // Memória por site
+  const MSKEY = 'IARA12_MEM_' + host;
+  let memory = JSON.parse(localStorage.getItem(MSKEY)||'null') || { history:[], providers:[], ads:[], notes:{} };
+
+  function persist(){ localStorage.setItem(MSKEY, JSON.stringify(memory)); }
+  function savePrefs(){ localStorage.setItem(LSKEY, JSON.stringify(prefs)); }
+
+  function now(){ return new Date().toLocaleString(); }
+  function tts(text){ try{ const u = new SpeechSynthesisUtterance(text); u.lang='pt-BR'; speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){} }
+
+  function addMsg(text, who='iara'){
+    const d = document.createElement('div');
+    d.className = 'i12-msg '+(who==='user'?'user':'iara');
+    d.textContent = text;
+    msgs.appendChild(d);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+  function addLog(action,data){
+    const entry = {time:now(), action, data};
+    memory.history.push(entry); persist();
+    renderLog();
+  }
+  function renderLog(){
+    logBox.innerHTML = '';
+    [...memory.history].reverse().forEach(e=>{
+      const div = document.createElement('div');
+      div.style.padding='8px'; div.style.borderBottom='1px solid #eee';
+      div.innerHTML = `<strong>${e.action}</strong><div style="font-size:12px;color:#666">${e.time}</div><div style="font-size:12px;margin-top:6px">${typeof e.data==='string'?e.data:JSON.stringify(e.data)}</div>`;
+      logBox.appendChild(div);
+    });
+  }
+  function renderSite(){
+    siteInfo.innerHTML = `<b>${host}</b><div style="font-size:12px;margin-top:6px;">Provedores: ${memory.providers.join(', ')||'—'}</div><div style="font-size:12px;">Anúncios detectados: ${memory.ads.length}</div>`;
+  }
+  function setDark(on){
+    ui.style.background = on ? '#0e0f13' : '#fff';
+    ui.style.color = on ? '#e9e9f0' : '#000';
+  }
+  setDark(prefs.dark);
+
+  // Lista de comandos (50+)
+  const COMMANDS = [
+    // Controle/ativação
+    'acordar iara','adormecer iara','abrir chat','fechar chat','minimizar painel','alternar modo',
+    // Ads e provedores
+    'identificar provedores','listar anúncios','adicionar anúncio adsterra','adicionar anúncio monetang','adicionar anúncio linkdirect','adicionar anúncio genérico','adicionar anúncio adsense (nota: no painel AdSense, via UI)','remover anúncios',
+    // Otimização
+    'otimizar página','lazy load imagens','adiar scripts não-essenciais','diagnosticar scripts pesados','analisar tempo de carregamento',
+    // Estilo/DOM
+    'alterar fundo para [cor|#hex]','mudar título para [texto]','esconder elemento [seletor]','mostrar elemento [seletor]','mover elemento [A] para [B]','clonar bloco [seletor]','injetar css [código]','adicionar meta tag [name:value]',
+    // Inspeções
+    'listar scripts','listar iframes','listar links externos',
+    // Segurança leve
+    'bloquear script [src-parcial]','permitir script [src-parcial]',
+    // Memória/Config
+    'exportar log','importar config [json]','memória limpar','salvar preferência [chave]=[valor]',
+    // Rotinas
+    'registrar rotina diária [hh:mm]','parar rotina',
+    // Exec avançado (use com cuidado)
+    'executar script [código js]',
+    // Utilitários
+    'abrir painel de ações','baixar relatório','modo dark on','modo dark off'
+  ];
+  (function fillCmds(){ cmdList.innerHTML=''; COMMANDS.forEach(c=>{ const li=document.createElement('li'); li.textContent=c; cmdList.appendChild(li); }); })();
+
+  // ===== Detectar provedores (heurística) =====
+  function detectProviders(){
+    const providers = new Set();
+    if(document.querySelector('script[src*="pagead"],script[src*="googlesyndication"],ins')){
+      providers.add('AdSense');
+    }
+    if(document.querySelector('script[src*="adsterra"]') || [...document.scripts].some(s=>s.textContent.includes('adsterra'))){
+      providers.add('Adsterra');
+    }
+    if(document.querySelector('script[src*="monetag"],script[src*="monetang"]') || [...document.scripts].some(s=>/monetag|monetang/i.test(s.textContent))){
+      providers.add('Monetag/Monetang');
+    }
+    if(document.querySelector('script[src*="linkdirect"]') || [...document.scripts].some(s=>/linkdirect/i.test(s.textContent))){
+      providers.add('LinkDirect');
+    }
+    memory.providers = [...providers]; persist();
+    renderSite();
+    addLog('DetectProviders', memory.providers);
+    return memory.providers;
+  }
+
+  // ===== Scanner de scripts =====
+  function scanScripts(){
+    const scripts = [...document.scripts].map(s=>({src:s.src||'(inline)', len:(s.textContent||'').length}));
+    inspector.textContent = 'Scripts: '+scripts.length+'\n'+JSON.stringify(scripts.slice(0,80),null,2);
+    addLog('ScanScripts',{count:scripts.length});
+    return scripts;
+  }
+
+  // ===== Ads: listar / injetar / remover =====
+  function listAds(){
+    const ads = [];
+    document.querySelectorAll('ins,[data-ad],[ad],iframe').forEach(el=>{
+      const tag = el.tagName.toLowerCase();
+      const hint = el.getAttribute('data-ad') || el.getAttribute('ad') || el.src || (el.innerText||'').slice(0,80);
+      ads.push({tag,hint});
+    });
+    memory.ads = ads; persist(); renderSite();
+    inspector.textContent = 'Anúncios detectados: '+ads.length+'\n'+JSON.stringify(ads.slice(0,50),null,2);
+    addLog('ListAds',{count:ads.length});
+    return ads;
+  }
+  function injectAd(type='genérico'){
+    const box = document.createElement('div');
+    box.setAttribute('ad',type);
+    box.style.cssText='padding:12px;margin:12px;border:1px dashed #bbb;background:#fff7e6;border-radius:8px';
+    box.innerHTML = `<b>Anúncio (${type})</b><div style="font-size:12px;color:#666">injetado por Iara</div>`;
+    const target = document.querySelector('main,article,#content,.content,body');
+    (target||document.body).insertBefore(box,(target||document.body).firstChild);
+    addLog('AddAd',type); listAds();
+    addMsg(`Anúncio ${type} injetado.`);
+  }
+  function removeAds(){
+    const els = [...document.querySelectorAll('[ad]')];
+    els.forEach(e=>e.remove());
+    addLog('RemoveAds',{removed:els.length}); listAds();
+    addMsg(`Removidos ${els.length} blocos de anúncio.`);
+  }
+
+  // ===== Otimização =====
+  function lazyImages(){
+    document.querySelectorAll('img').forEach(img=>{ if(!img.loading) img.loading='lazy'; });
+    addLog('LazyImages','ok'); addMsg('Lazy load aplicado a imagens.');
+  }
+  function deferNonCritical(){
+    [...document.scripts].forEach(s=>{
+      try{
+        const src = s.src||'';
+        if(src && !/adsbygoogle|ga\.js|gtag|analytics/.test(src) && !s.defer && !s.async) s.defer=true;
+      }catch(e){}
+    });
+    addLog('DeferScripts','ok'); addMsg('Scripts não críticos marcados como defer.');
+  }
+  function optimize(){
+    lazyImages(); deferNonCritical();
+    addLog('OptimizePage','done'); addMsg('Otimização concluída.');
+  }
+
+  // ===== Estilo/DOM =====
+  function setBg(c){ document.body.style.background=c; addLog('ChangeBackground',c); addMsg('Fundo alterado para '+c+'.'); }
+  function hideSel(sel){ const el = document.querySelector(sel); if(el){ el.style.display='none'; addLog('Hide',sel); addMsg('Escondi '+sel); } else addMsg('Seleção não encontrada: '+sel); }
+  function showSel(sel){ const el = document.querySelector(sel); if(el){ el.style.display=''; addLog('Show',sel); addMsg('Mostrei '+sel); } else addMsg('Seleção não encontrada: '+sel); }
+  function moveEl(a,b){ const A=document.querySelector(a),B=document.querySelector(b); if(A&&B){ B.appendChild(A); addLog('Move',{from:a,to:b}); addMsg(`Movi ${a} para ${b}`);} else addMsg('Verifique seletores.'); }
+  function cloneEl(sel){ const el=document.querySelector(sel); if(!el){ addMsg('Seleção não encontrada.'); return;} const cl=el.cloneNode(true); el.parentNode.insertBefore(cl,el.nextSibling); addLog('Clone',sel); addMsg('Clonado: '+sel); }
+  function injectCSS(code){ const st=document.createElement('style'); st.textContent=code; document.head.appendChild(st); addLog('InjectCSS', code.slice(0,120)); addMsg('CSS injetado.'); }
+  function addMeta(pair){ const [name,val]=pair.split(':'); if(!name||!val){ addMsg('Use: adicionar meta tag nome:valor'); return;} const m=document.createElement('meta'); m.setAttribute('name',name.trim()); m.setAttribute('content',val.trim()); document.head.appendChild(m); addLog('AddMeta',{name,val}); addMsg('Meta adicionada.'); }
+  function changeTitle(t){ document.title=t; addLog('ChangeTitle',t); addMsg('Título alterado.'); }
+
+  // ===== Inspeções utilitárias =====
+  function listIframes(){ const arr=[...document.querySelectorAll('iframe')].map(i=>i.src); miniOut.textContent='Iframes ('+arr.length+'):\n'+arr.join('\n'); addLog('ListIframes',arr.length); }
+  function listLinks(){ const arr=[...document.querySelectorAll('a')].map(a=>a.href).filter(Boolean); miniOut.textContent='Links ('+arr.length+'):\n'+arr.join('\n'); addLog('ListLinks',arr.length); }
+  function loadTime(){ const t=(performance.timing||performance.getEntriesByType('navigation')[0]); let msg=''; if(performance.getEntriesByType){ const nav=performance.getEntriesByType('navigation')[0]; if(nav) msg = `DOM: ${Math.round(nav.domContentLoadedEventEnd)} ms • Load: ${Math.round(nav.loadEventEnd)} ms`; } miniOut.textContent=msg||'Métricas indisponíveis'; addLog('Perf',msg); }
+  function heavyScripts(){ const items=[...document.scripts].map(s=>({src:s.src||'(inline)', size:(s.textContent||'').length})).sort((a,b)=>b.size-a.size).slice(0,10); miniOut.textContent='Top scripts por tamanho:\n'+JSON.stringify(items,null,2); addLog('HeavyScripts',items[0]?.src||'—'); }
+
+  // ===== Bloqueio/Permissão “leve” por substring do src =====
+  const BLOCKLIST_KEY = 'IARA12_BLOCK_'+host;
+  const ALLOWLIST_KEY = 'IARA12_ALLOW_'+host;
+  let blockList = JSON.parse(localStorage.getItem(BLOCKLIST_KEY)||'[]');
+  let allowList = JSON.parse(localStorage.getItem(ALLOWLIST_KEY)||'[]');
+
+  function blockScript(substr){ if(!substr) return addMsg('Informe substring.'); blockList.push(substr); localStorage.setItem(BLOCKLIST_KEY, JSON.stringify(blockList)); addMsg('Adicionado ao blocklist: '+substr); addLog('BlockScript',substr); }
+  function allowScript(substr){ if(!substr) return addMsg('Informe substring.'); allowList.push(substr); localStorage.setItem(ALLOWLIST_KEY, JSON.stringify(allowList)); addMsg('Adicionado ao allowlist: '+substr); addLog('AllowScript',substr); }
+
+  // ===== Rotinas (simples) =====
+  let routineTimer = null;
+  function scheduleDaily(hhmm){
+    const [hh,mm]=hhmm.split(':').map(n=>parseInt(n,10));
+    if(isNaN(hh)||isNaN(mm)){ addMsg('Use hh:mm (24h).'); return; }
+    if(routineTimer) clearInterval(routineTimer);
+    routineTimer = setInterval(()=>{
+      const d=new Date(); if(d.getHours()===hh && d.getMinutes()===mm){ optimize(); listAds(); }
+    }, 30*1000);
+    addLog('RoutineSet',hhmm); addMsg('Rotina diária registrada para '+hhmm);
+  }
+  function stopRoutine(){ if(routineTimer) clearInterval(routineTimer); routineTimer=null; addLog('RoutineStop','ok'); addMsg('Rotina parada.'); }
+
+  // ===== Execução arbitrária (cuidado) =====
+  function runJS(code){ try{ const r = (new Function(code))(); addLog('RunJS', String(r).slice(0,200)); addMsg('Script executado.'); }catch(e){ addMsg('Erro: '+e.message); } }
+
+  // ===== Render auxiliares =====
+  function renderPrefsUI(){
+    prefs.dark = !!chkDark.checked; setDark(prefs.dark);
+    prefs.autoListAds = !!chkAutoListAds.checked;
+    prefs.autoScan = !!chkAutoScan.checked;
+    prefs.bgListener = !!chkBgListener.checked;
+    savePrefs();
+    addMsg('Preferências salvas.');
+  }
+
+  // ===== Tabs =====
+  tabs.forEach(t=>{
+    t.addEventListener('click', ()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      [...document.querySelectorAll('.i12-tabcontent')].forEach(c=>c.style.display='none');
+      document.getElementById('iara12-'+t.dataset.tab).style.display='block';
+    });
+  });
+
+  // ===== UI básico =====
+  function openUI(){ ui.style.display='block'; floatBtn.style.display='block'; renderSite(); renderLog(); }
+  function closeUI(){ ui.style.display='none'; }
+  function toggleUI(){ ui.style.display = ui.style.display==='block'?'none':'block'; if(ui.style.display==='block'){ renderSite(); renderLog(); } }
+
+  floatBtn.addEventListener('click', toggleUI);
+  minBtn.addEventListener('click', ()=> ui.style.display='none');
+  closeBtn.addEventListener('click', ()=>{ ui.style.display='none'; floatBtn.style.display='none'; addMsg('Painel fechado. Diga “acordar Iara” para abrir.'); });
+
+  // Arrastar botão
+  floatBtn.addEventListener('mousedown', (e)=>{
+    let sx = e.clientX - floatBtn.getBoundingClientRect().left;
+    let sy = e.clientY - floatBtn.getBoundingClientRect().top;
+    function move(px,py){ floatBtn.style.left=(px-sx)+'px'; floatBtn.style.top=(py-sy)+'px'; floatBtn.style.position='fixed'; }
+    function mm(ev){ move(ev.pageX,ev.pageY); }
+    document.addEventListener('mousemove', mm);
+    floatBtn.onmouseup=()=>{ document.removeEventListener('mousemove', mm); floatBtn.onmouseup=null; };
+  });
+  floatBtn.ondragstart=()=>false;
+
+  // ===== Modo =====
+  modeBtn.addEventListener('click', ()=>{ mode = (mode==='AUTÔNOMO'?'SUGGEST':'AUTÔNOMO'); prefs.mode = mode; savePrefs(); modeBtn.textContent='Modo: '+mode; addMsg('Modo alterado para '+mode); });
+
+  // ===== Voice (ativação + comandos) =====
+  const SR = window.SpeechRecognition||window.webkitSpeechRecognition||null;
+  let rec = null; let isListening = false;
+  if(SR){ rec = new SR(); rec.lang='pt-BR'; rec.continuous=true; rec.interimResults=false; }
+
+  function startRec(){ if(!rec || isListening) return; try{ rec.start(); isListening=true; addMsg('🎙️ Voz ativa.'); }catch(e){} }
+  function stopRec(){ if(!rec) return; try{ rec.stop(); isListening=false; addMsg('🎙️ Voz pausada.'); }catch(e){} }
+
+  voiceBtn.addEventListener('click', ()=>{ isListening?stopRec():startRec(); });
+
+  if(rec){
+    rec.onresult = (ev)=>{
+      const txt = ev.results[ev.results.length-1][0].transcript.toLowerCase().trim();
+      handleCommand(txt, true);
+    };
+    rec.onerror = ()=>{ isListening=false; };
+  }
+
+  // Listener leve para “acordar Iara”
+  if(prefs.bgListener && rec){
+    try{ rec.start(); isListening=true; }catch(e){}
+  }
+
+  // ===== Disparadores do inspector rápido =====
+  document.querySelectorAll('[data-mini]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const f=btn.dataset.mini;
+      if(f==='iframes') listIframes();
+      else if(f==='links') listLinks();
+      else if(f==='perf') loadTime();
+      else if(f==='heavy') heavyScripts();
+    });
+  });
+
+  // ===== Botões do painel =====
+  scanBtn.addEventListener('click', ()=>{ scanScripts(); tts('Scan de scripts concluído.'); });
+  listAdsBtn.addEventListener('click', ()=>{ listAds(); tts('Anúncios listados.'); });
+  optBtn.addEventListener('click', ()=>{ optimize(); tts('Otimização aplicada.'); });
+
+  exportBtn.addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(memory,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob); const a=document.createElement('a');
+    a.href=url; a.download='iara12-log-'+host+'.json'; a.click(); URL.revokeObjectURL(url);
+    addMsg('Log exportado.');
+  });
+  clearLogBtn.addEventListener('click', ()=>{ memory.history=[]; persist(); renderLog(); addMsg('Log limpo.'); });
+  reportBtn.addEventListener('click', ()=>{
+    const txt = `Relatório Iara12\nSite: ${host}\nProvedores: ${memory.providers.join(', ')}\nAds: ${memory.ads.length}\nAções: ${memory.history.length}`;
+    const blob=new Blob([txt],{type:'text/plain'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='iara12-relatorio-'+host+'.txt';a.click();URL.revokeObjectURL(url);
+  });
+
+  saveBtn.addEventListener('click', ()=>{ renderPrefsUI(); });
+  resetBtn.addEventListener('click', ()=>{
+    prefs = {...DEF_PREF}; savePrefs();
+    chkAutoListAds.checked=prefs.autoListAds; chkAutoScan.checked=prefs.autoScan; chkBgListener.checked=prefs.bgListener; chkDark.checked=prefs.dark;
+    setDark(prefs.dark); addMsg('Preferências resetadas.');
+  });
+
+  // ===== Processador de comandos =====
+  function handleCommand(raw, fromVoice=false){
+    const cmd = raw.toLowerCase().trim();
+    if(!fromVoice) addMsg(raw, 'user');
+
+    // Acordar/adormecer + abrir/fechar
+    if(cmd.includes('acordar iara')){ openUI(); floatBtn.style.display='block'; addMsg('Iara acordou!'); tts('Iara acordou.'); return; }
+    if(cmd.includes('adormecer iara')){ closeUI(); floatBtn.style.display='none'; addMsg('Iara em repouso.'); tts('Adormecendo.'); return; }
+    if(cmd.includes('abrir chat')){ openUI(); return; }
+    if(cmd.includes('fechar chat')){ closeUI(); return; }
+    if(cmd.includes('minimizar painel')){ ui.style.display='none'; return; }
+    if(cmd.includes('alternar modo')){ modeBtn.click(); return; }
+    if(cmd==='modo dark on'){ setDark(true); chkDark.checked=true; prefs.dark=true; savePrefs(); return; }
+    if(cmd==='modo dark off'){ setDark(false); chkDark.checked=false; prefs.dark=false; savePrefs(); return; }
+
+    // Provedores e anúncios
+    if(cmd.includes('identificar provedores')){ const p=detectProviders(); addMsg('Provedores: '+(p.join(', ')||'—')); tts('Provedores detectados.'); return; }
+    if(cmd.includes('listar anúncios')){ const a=listAds(); addMsg('Anúncios: '+a.length); tts('Anúncios listados.'); return; }
+    if(cmd.startsWith('adicionar anúncio')){
+      const type = cmd.includes('adsterra')?'Adsterra': cmd.includes('monetang')||cmd.includes('monetag')?'Monetag/Monetang': cmd.includes('linkdirect')?'LinkDirect': cmd.includes('adsense')?'AdSense':'genérico';
+      if(type==='AdSense' && host.includes('adsense.google.com')){ addMsg('Criação via UI do Google no painel AdSense.'); tts('Use a interface do Google.'); return; }
+      injectAd(type); tts('Anúncio inserido.');
+      return;
+    }
+    if(cmd.includes('remover anúncios')){ removeAds(); tts('Anúncios removidos.'); return; }
+
+    // Otimização e diagnóstico
+    if(cmd.includes('otimizar página')){ optimize(); tts('Otimização feita.'); return; }
+    if(cmd.includes('lazy load imagens')){ lazyImages(); tts('Lazy load aplicado.'); return; }
+    if(cmd.includes('adiar scripts')){ deferNonCritical(); tts('Scripts adiados.'); return; }
+    if(cmd.includes('diagnosticar scripts pesados')){ heavyScripts(); tts('Diagnóstico concluído.'); return; }
+    if(cmd.includes('analisar tempo de carregamento')){ loadTime(); tts('Análise de carregamento exibida.'); return; }
+
+    // Estilo/DOM
+    if(/(alterar|trocar|mudar) fundo para /.test(cmd)){ const col = cmd.replace(/.*fundo para /,'').trim(); setBg(col); tts('Fundo alterado.'); return; }
+    if(/^(mudar título para|alterar título para)/.test(cmd)){ const t = cmd.replace(/^(mudar título para|alterar título para)\s+/,''); changeTitle(t); tts('Título alterado.'); return; }
+    if(/^esconder elemento /.test(cmd) || /^ocultar elemento /.test(cmd)){ const sel = cmd.replace(/^(esconder elemento|ocultar elemento)\s+/,''); hideSel(sel); return; }
+    if(/^mostrar elemento /.test(cmd) || /^exibir elemento /.test(cmd)){ const sel = cmd.replace(/^(mostrar elemento|exibir elemento)\s+/,''); showSel(sel); return; }
+    if(/^mover elemento /.test(cmd)){ const m = cmd.match(/^mover elemento\s+(.+)\s+para\s+(.+)$/); if(m){ moveEl(m[1].trim(), m[2].trim()); tts('Elemento movido.'); } else addMsg('Formato: mover elemento [A] para [B]'); return; }
+    if(/^clonar bloco /.test(cmd) || /^clonar elemento /.test(cmd)){ const sel = cmd.replace(/^(clonar bloco|clonar elemento)\s+/,''); cloneEl(sel); tts('Bloco clonado.'); return; }
+    if(/^injetar css /.test(cmd)){ const code = raw.slice(raw.toLowerCase().indexOf('injetar css ')+12); injectCSS(code); return; }
+    if(/^adicionar meta tag /.test(cmd)){ const pair = raw.slice(raw.toLowerCase().indexOf('adicionar meta tag ')+19); addMeta(pair); return; }
+
+    // Inspeções
+    if(cmd.includes('listar scripts') || cmd.includes('scan scripts')){ const s = scanScripts(); addMsg('Scripts: '+s.length); return; }
+    if(cmd.includes('listar iframes')){ listIframes(); return; }
+    if(cmd.includes('listar links')){ listLinks(); return; }
+
+    // Segurança leve
+    if(/^bloquear script /.test(cmd)){ const s = cmd.replace(/^bloquear script\s+/, ''); blockScript(s); return; }
+    if(/^permitir script /.test(cmd)){ const s = cmd.replace(/^permitir script\s+/, ''); allowScript(s); return; }
+
+    // Memória/Config
+    if(cmd.includes('exportar log')){ exportBtn.click(); return; }
+    if(/^importar config /.test(cmd)){ const json = raw.slice(raw.toLowerCase().indexOf('importar config ')+15).trim(); try{ const p=JSON.parse(json); memory={...memory, ...p}; persist(); renderLog(); addMsg('Config importada.'); }catch(e){ addMsg('JSON inválido.'); } return; }
+    if(cmd.includes('memória limpar')){ memory={history:[],providers:[],ads:[],notes:{}}; persist(); renderLog(); addMsg('Memória limpa.'); return; }
+    if(/^salvar preferência /.test(cmd)){ const kv=cmd.replace(/^salvar preferência\s+/,''); const [k,v]=kv.split('=').map(s=>s?.trim()); if(k){ prefs[k]= (v==='true'?true: v==='false'?false: v); savePrefs(); addMsg('Preferência salva: '+k+'='+v); } else addMsg('Use: salvar preferência chave=valor'); return; }
+
+    // Rotinas
+    if(/^registrar rotina diária /.test(cmd)){ const hhmm = cmd.replace(/^registrar rotina diária\s+/,'').trim(); scheduleDaily(hhmm); return; }
+    if(cmd.includes('parar rotina')){ stopRoutine(); return; }
+
+    // Exec avançado
+    if(/^executar script /.test(cmd) || /^rodar script /.test(cmd)){ const code = raw.replace(/^(executar script|rodar script)\s+/i,''); runJS(code); return; }
+
+    // Painel
+    if(cmd.includes('abrir painel de ações')){ openUI(); tabs.forEach(t=>t.classList.remove('active')); document.querySelector('.i12-tab[data-tab="panel"]').classList.add('active'); document.getElementById('iara12-panel').style.display='block'; document.getElementById('iara12-chat').style.display='none'; return; }
+    if(cmd.includes('baixar relatório')){ reportBtn.click(); return; }
+
+    // Fallback
+    addLog('Cmd',cmd); addMsg('Comando registrado: '+cmd);
+  }
+
+  // Envio manual
+  sendBtn.addEventListener('click', ()=>{ const v=input.value.trim(); if(!v) return; handleCommand(v); input.value=''; });
+  input.addEventListener('keypress', e=>{ if(e.key==='Enter') sendBtn.click(); });
+
+  // Auto detecção inicial
+  root.style.display='block';
+  // Mostra o botão somente após “acordar Iara” por voz, mas se não houver reconhecimento, mostra o botão:
+  if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) floatBtn.style.display='block';
+
+  // Inicializações
+  const providers = detectProviders();
+  if(prefs.autoScan) scanScripts();
+  if(prefs.autoListAds) listAds();
+  renderSite(); renderLog();
+
+  // Dica inicial no console
+  console.info('Iara 12 carregada. Diga "acordar Iara" para ativar.');
+})();
+</script>
+<!-- FIM IARA ULTRA – VERSÃO 12 -->
 </body>
 </html>
